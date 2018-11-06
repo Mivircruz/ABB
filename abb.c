@@ -74,6 +74,19 @@ bool _abb_guardar(nodo_t* nodo, const char* clave, void* dato, abb_comparar_clav
 
 }
 
+void _abb_destruir(nodo_t* nodo, abb_destruir_dato_t destruir_dato){
+
+	if(!nodo)
+		return;
+
+	_abb_destruir(nodo->izq, destruir_dato);
+	_abb_destruir(nodo->der, destruir_dato);
+	destruir_dato(nodo->dato);
+	free(nodo->clave);
+	free(nodo);
+	return;
+}
+
 /* ******************************************************************
  *                    PRIMITIVAS DEL ABB
  * *****************************************************************/
@@ -113,5 +126,5 @@ size_t abb_cantidad(abb_t *arbol){
 }
 
 void abb_destruir(abb_t *arbol){
-
+	return _abb_destruir(arbol->raiz, arbol->destructor);
 }
