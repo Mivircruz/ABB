@@ -26,7 +26,7 @@ struct abb{
 };
 
 /* ******************************************************************
- *                   FUNCIONES AUXILIARES
+ *                   PRIMITIVAS DEL NODO
  * *****************************************************************/
 nodo_t* nodo_crear(const char* clave, void* dato){
 	nodo_t* nodo = malloc(sizeof(nodo_t));
@@ -38,6 +38,22 @@ nodo_t* nodo_crear(const char* clave, void* dato){
 	nodo->dato = dato;
 	return nodo;
 }
+/* ******************************************************************
+ *                   FUNCIONES AUXILIARES
+ * *****************************************************************/
+
+nodo_t* abb_recorrer(nodo_t* nodo, char* clave, abb_comparar_clave_t cmp){
+		if(!nodo)
+			return NULL;
+
+		int comparacion_clave = cmp(nodo->clave, clave);
+		if(!comparacion_clave)
+			return nodo;
+		if(comparacion_clave < 0)
+		return _abb_guardar(nodo->izq);
+	else(comparacion_clave > 0)
+		return _abb_guardar(nodo->der);
+}
 
 /* ******************************************************************
  *                   	WRAPPERS
@@ -45,22 +61,17 @@ nodo_t* nodo_crear(const char* clave, void* dato){
 
 bool _abb_guardar(nodo_t* nodo, const char* clave, void* dato, abb_comparar_clave_t cmp, abb_destruir_dato_t destructor){
 
-	if(!nodo){
+	nodo_t* nodo_guardar = abb_recorrer(nodo, clave, cmp);
+	if(!nodo_guardar){
 		char* clave_abb = strdup(clave);
 		nodo_t* nodo = nodo_crear(clave_abb,dato);
-		return true;
+		return (!nodo) ? false : true;
 	}
-	
-	int comparacion_clave = cmp(clave);
-	if(!comparacion_clave){
-		destructor(nodo->dato);
-		nodo->dato = dato;
+	else{
+		destructor(nodo_guardar->dato);
+		nodo_guardar->dato = dato;
 		return true;
-	}
-	if(comparacion_clave < 0)
-		return _abb_guardar(nodo->izq);
-	else(comparacion_clave > 0)
-		return _abb_guardar(nodo->der);
+
 }
 
 /* ******************************************************************
@@ -88,15 +99,16 @@ void *abb_borrar(abb_t *arbol, const char *clave){
 }
 
 void *abb_obtener(const abb_t *arbol, const char *clave){
+	return abb_recorrer(arbol->raiz,clave);
 
 }
 
 bool abb_pertenece(const abb_t *arbol, const char *clave){
-
+	return (abb_recorrer(arbol->raiz, clave)) ? true : false;
 }
 
-//
 size_t abb_cantidad(abb_t *arbol){
+	return abb->cantidad;
 
 }
 
