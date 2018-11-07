@@ -44,7 +44,7 @@ nodo_t* nodo_crear(const char* clave, void* dato){
  *                   FUNCIONES AUXILIARES
  * *****************************************************************/
 
-//Recorre el árbol buscando un nodo con la clave pasada por parámetro. 
+//Recorre el árbol buscando un nodo con la clave pasada por parámetro.
 //Además, se pasa un doble puntero para obtener al padre del nodo con la clave.
 //Si no se encuentra al nodo, devuelve NULL.
  nodo_t* abb_recorrer(nodo_t* nodo, nodo_t** padre, const char* clave, abb_comparar_clave_t cmp){
@@ -61,7 +61,7 @@ nodo_t* nodo_crear(const char* clave, void* dato){
  	if(comparacion_clave < 0)
  		return abb_recorrer(nodo->der, padre, clave, cmp);
 
-   else 
+   else
  	  return abb_recorrer(nodo->izq, padre, clave, cmp);
 
  }
@@ -91,6 +91,76 @@ nodo_t* nodo_crear(const char* clave, void* dato){
 	}
 }
 */
+//El sub procedimiento de borrar requiere del nodo donde viajar, la clave y la funcion de comparar
+void* _abb_borrar(nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp){
+  //Si me pasan un nodo NULL
+  if (!nodo)
+    return NULL;
+  //Hago un puntero para pasar al recorrer
+  void* padre = NULL;
+  //Busco el nodo a Borrar
+  nodo_t* a_borrar = abb_recorrer(nodo,padre,clave,cmp);
+  //Si el recorrrer falla, entonces no esta en el arbol
+  if (!a_borrar)
+    return NULL;
+  //Si el a borrar no tiene hijos, se lo borra y listo
+    if ( !(a_borrar->izq) && !(a_borrar->der) ){
+      free(a_borrar->clave); // Libero la memoria del nodo
+      return (a_borrar->dato); // retorno el dato al abb_borrar principal;
+      }
+    else { //Casos donde tiene hijos
+      //Caso si tiene ambos hijos
+      if (a_borrar->izq && a_borrar->der){
+          /*------------------  LA LOGICA DENTRO DE ESTE IF AUN SE ESTA PENSANDO ----------------*/
+        /*
+        //sELECCIONO uno de los 2 hijos para que reemplaze el lugar de su padre, elijo el derecho (porque?)
+        //Porque asi siempre esta el mayor arriba ("el mayor de las claves menores")
+        nodo_t* hijo = a_borrar->der;
+        void* devolver = a_borrar->dato;
+
+        //logica de reemplazo para reemplazar al hijo del padre por el hijo del hijo
+
+        if (padre->izq == a_borrar){
+           //Si el que se va a borrar es el hijo izquierdo del padre obtenidop en recorrer
+           hijo =
+          padre->izq = hijo
+          free(a_borrar) //Borro el dato
+        }
+        if (padre->der == a_borrar){
+          //Si el que se va a borrar es el hijoderecho del padre obtenidop en recorrer
+          padre->der = hijo;
+          free(a_borrar)
+
+          */
+      }
+      else { // Caso donde tiene un solo hijo
+        //Determinar cual es el que existe y subirlo como hijo de =l padre
+        //Guardar el dato para deovlverlo, y borrar la clave del a borrar
+        nodo_t* hijo = NULL; //ESTA LINEA PUEDE SER TUNEADA CON TU OPERADOR ? QUE TANTO AMAS
+        void* devolver = NULL;
+        //Busco quien es el UNICO hijo
+        if (a_borrar->izq)
+          hijo = a_borrar->izq;
+        if (a_borrar->der)
+          hijo = a_borrar->der;
+        free(a_borrar->clave); // Borro la clave
+        devolver = a_borrar->dato; //Guardo el dato para devolverlo
+
+        //logica de reemplazo para reemplazar al hijo del padre por el hijo del hijo
+        if (padre->izq == a_borrar){
+           //Si el que se va a borrar es el hijo izquierdo del padre obtenidop en recorrer
+          padre->izq = hijo
+          free(a_borrar) //Borro el dato
+        }
+        if (padre->der == a_borrar){
+          //Si el que se va a borrar es el hijoderecho del padre obtenidop en recorrer
+          padre->der = hijo;
+          free(a_borrar)
+        }
+        return devolver;
+      }
+    }
+}
 
 void _abb_destruir(nodo_t* nodo, abb_destruir_dato_t destruir_dato){
 
@@ -137,7 +207,7 @@ bool abb_guardar(abb_t *abb, const char *clave, void *dato){
 	 	else{
 	 		if(abb->comparar_clave(padre->clave, clave) < 0)
 	 			padre->der = a_guardar;
-	 		else 
+	 		else
 	 			padre->izq = a_guardar;
 	 	}
 	 }
@@ -150,8 +220,13 @@ bool abb_guardar(abb_t *abb, const char *clave, void *dato){
 }
 
 void *abb_borrar(abb_t *arbol, const char *clave){
-	return NULL;
-	//return _abb_borrar(arbol->raiz, arbol->comparar_clave);
+  //Si recibo un arbol vacio devuelvo NULL
+  if (!arbol)
+    return NULL;
+  //Si no tiene raiz
+  if (arbol->raiz)
+    return NULL;
+	return _abb_borrar(arbol->raiz,clave, arbol->comparar_clave);
 }
 
 //Obtiene el nodo
