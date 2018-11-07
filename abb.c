@@ -44,44 +44,54 @@ nodo_t* nodo_crear(const char* clave, void* dato){
  *                   FUNCIONES AUXILIARES
  * *****************************************************************/
 
- nodo_t* abb_recorrer(nodo_t* nodo,const char* clave, abb_comparar_clave_t cmp){
+//Recorre el árbol buscando un nodo con la clave pasada por parámetro. 
+//Además, se pasa un doble puntero para obtener al padre del nodo con la clave.
+//Si no se encuentra al nodo, devuelve NULL.
+ nodo_t* abb_recorrer(nodo_t* nodo, nodo_t** padre, const char* clave, abb_comparar_clave_t cmp){
  	if(!nodo)
  		return NULL;
 
+ 	//Si encuentra la clave en el árbol, devuelve el nodo que la contiene.
  	int comparacion_clave = cmp(nodo->clave, clave);
  	if(!comparacion_clave)
  		return nodo;
+
+ 	//Si no, busca a izquierda o derecha según la clave sea mayor o menor al nodo actual.
+ 	*padre = nodo;
  	if(comparacion_clave < 0)
- 	 return (nodo->izq);
-   else /*(comparacion_clave > 0)*/
- 	  return (nodo->der);
+ 		return abb_recorrer(nodo->der, padre, clave, cmp);
+
+   else 
+ 	  return abb_recorrer(nodo->izq, padre, clave, cmp);
 
  }
-
-
- //Guardra Realmente el dato en el Arbol (Guarda la hoja)
- bool _abb_guardar(nodo_t* nodo, const char* clave, void* dato, abb_comparar_clave_t cmp, abb_destruir_dato_t destructor){
-
- 	nodo_t* nodo_guardar = abb_recorrer(nodo, clave, cmp);
- 	if(!nodo_guardar){
- 		char* clave_abb = strdup(clave);
- 		nodo_t* nodo = nodo_crear(clave_abb,dato);
- 		return (!nodo) ? false : true;
- 	}
- 	else{
- 		destructor(nodo_guardar->dato);
- 		nodo_guardar->dato = dato;
- 		return true;
-
-  }
-}
 
 
 /* ******************************************************************
  *                   	WRAPPERS
  * *****************************************************************/
 
-//Destruye una hoja del arbol
+ /*void* _abb_borrar(nodo_t* nodo, const char* clave, void* dato, abb_comparar_clave_t cmp){
+	if(!nodo)
+		return NULL;
+
+	nodo_t* a_borrar = abb_recorrer(nodo, clave, cmp);
+	if(!a_borrar)
+		return NULL;
+
+	void* a_devolver = a_borrar->dato;
+
+	if(!a_borrar->izq && !a_borrar->der){
+		free(a_borrar->clave);
+		free(a_borrar);
+	}
+
+	else if(!a_borrar->izq && a_borrar->der || a_borrar->izq && !a_borrar->der){
+		nodo_t* aux = (!a_borrar->izq && a_borrar->der) ? a_borrar->der : a_borrar->izq;
+	}
+}
+*/
+
 void _abb_destruir(nodo_t* nodo, abb_destruir_dato_t destruir_dato){
 
 	if(!nodo)
@@ -89,18 +99,19 @@ void _abb_destruir(nodo_t* nodo, abb_destruir_dato_t destruir_dato){
 
 	_abb_destruir(nodo->izq, destruir_dato);
 	_abb_destruir(nodo->der, destruir_dato);
-	destruir_dato(nodo->dato);
-  //destruida la clave clonada
-  free(nodo->clave);
+	if(destruir_dato)
+		destruir_dato(nodo->dato);
+	free(nodo->clave);
 	free(nodo);
 	return;
 }
+
+
 
 /* ******************************************************************
  *                    PRIMITIVAS DEL ABB
  * *****************************************************************/
 
-//Crea el arbol
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 
 	abb_t* abb = malloc(sizeof(abb_t));
@@ -109,30 +120,52 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 	abb->destruir_dato = destruir_dato;
 	abb->comparar_clave = cmp;
 	abb->cantidad = 0;
-  //retorno el abb
+	abb->raiz = NULL;
   return abb;
 }
 
-//Aumenta la cantidad y llama a _abb_guardar para guardar la hoja
 bool abb_guardar(abb_t *abb, const char *clave, void *dato){
-	abb->cantidad++;
-	return _abb_guardar(abb->raiz, clave, dato,abb->comparar_clave,abb->destruir_dato);
 
+	nodo_t* padre = NULL;
+ 	nodo_t* nodo_misma_clave = abb_recorrer(abb->raiz, &padre, clave, abb->comparar_clave);
+ 	if(!nodo_misma_clave){
+ 		nodo_t* a_guardar = nodo_crear(clave, dato);
+ 		if(!a_guardar)
+ 			return false;
+	 	if(!abb->raiz)
+	 		abb->raiz = a_guardar;
+	 	else{
+	 		if(abb->comparar_clave(padre->clave, clave) < 0)
+	 			padre->der = a_guardar;
+	 		else 
+	 			padre->izq = a_guardar;
+	 	}
+	 }
+	 	else{
+	 		abb->destruir_dato(nodo_misma_clave->dato);
+	 		nodo_misma_clave->dato = dato;
+		}
+	abb->cantidad++;
+	return true;
 }
 
-
 void *abb_borrar(abb_t *arbol, const char *clave){
-  return NULL;
+	return NULL;
+	//return _abb_borrar(arbol->raiz, arbol->comparar_clave);
 }
 
 //Obtiene el nodo
 void *abb_obtener(const abb_t *abb, const char *clave){
-	return abb_recorrer(abb->raiz,clave, abb->comparar_clave);
-
+	nodo_t* nodo = NULL;
+	nodo = abb_recorrer(abb->raiz, &nodo, clave, abb->comparar_clave);
+	if(!nodo)
+		return NULL;
+	return nodo->dato;
 }
 
 bool abb_pertenece(const abb_t *arbol, const char *clave){
-	return (abb_recorrer(arbol->raiz, clave,arbol->comparar_clave)) ? true : false;
+	nodo_t* padre = NULL;
+	return (abb_recorrer(arbol->raiz, &padre, clave,arbol->comparar_clave)) ? true : false;
 }
 
 size_t abb_cantidad(abb_t *abb){
@@ -141,5 +174,6 @@ size_t abb_cantidad(abb_t *abb){
 }
 
 void abb_destruir(abb_t *arbol){
-	return _abb_destruir(arbol->raiz, arbol->destruir_dato);
+	_abb_destruir(arbol->raiz, arbol->destruir_dato);
+	free(arbol);
 }
