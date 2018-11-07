@@ -35,6 +35,9 @@ bool abb_pertenece(const abb_t *arbol, const char *clave);
 //Pre: el árbol fue creado.
 size_t abb_cantidad(abb_t *arbol);
 
+//Destruye el abb y libera la memoria pedida.
+//Pre: el abb fue creado.
+//Post: el abb fue destruido.
 void abb_destruir(abb_t *arbol);
 
 #endif
