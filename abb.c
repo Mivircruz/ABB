@@ -99,12 +99,12 @@ padre_t* padre_crear(void){
 
 nodo_t* traza_izquierda(nodo_t* nodo, padre_t* extra){
 
-	if(!nodo)
-		return NULL;
-
-	extra->padre = nodo;
-	traza_izquierda(nodo->izq, extra);
-	return nodo;
+	nodo_t* actual = nodo;
+	while(actual->izq){
+		extra->padre = nodo;
+		actual = actual->izq;
+	}
+	return actual;
 }
 
 /* ******************************************************************
@@ -178,12 +178,13 @@ bool abb_guardar(abb_t *abb, const char *clave, void *dato){
 	 		else
 	 			extra->padre->izq = a_guardar;
 	 	}
+	 	abb->cantidad++;
 	 }
 	 	else{
-	 		abb->destruir_dato(nodo_misma_clave->dato);
+	 		if(abb->destruir_dato)
+	 			abb->destruir_dato(nodo_misma_clave->dato);
 	 		nodo_misma_clave->dato = dato;
 		}
-	abb->cantidad++;
 	free(extra);
 	return true;
 }
@@ -203,47 +204,9 @@ void *abb_borrar(abb_t *arbol, const char *clave){
 	void* a_devolver = a_borrar->dato;
 	free(a_borrar->clave);
 
-//Primer caso: a_borrar es una hoja (nodo sin hijos)
-	if(!a_borrar->izq && !a_borrar->der){
-
-		free(a_borrar);
-
-		//Caso raíz
-
-		if(!a_borrar_padre->padre)
-			arbol->raiz = NULL;
-
-		//Caso general
-
-		else if(a_borrar_padre->izq)
-			a_borrar_padre->padre->izq = NULL;
-		else
-			a_borrar_padre->padre->der = NULL;
-	}
-
-//Segundo caso: a_borrar es un nodo interno con un hijo.
-	else if((!a_borrar->izq && a_borrar->der )|| (a_borrar->izq && !a_borrar->der)){
-
-		nodo_t* hijo = (!a_borrar->izq && a_borrar->der) ? a_borrar->der : a_borrar->izq;
-
-		//Caso raíz
-
-		if(!a_borrar_padre->padre)
-			arbol->raiz = hijo;
-
-		//Caso general
-		else{
-			if(a_borrar_padre->izq)
-				a_borrar_padre->padre->izq = hijo;
-			else
-				a_borrar_padre->padre->der = hijo;
-		}
-		free(a_borrar);
-	}
-
-//Tercer caso: a_borrar es un nodo interno con dos hijos.
-	else{
-
+	//Primer caso: a_borrar es un nodo interno con dos hijos.
+	if(a_borrar->izq && a_borrar->der){
+	
 		padre_t* reemplazante_padre = padre_crear();
 		nodo_t* reemplazante_nodo = traza_izquierda(a_borrar->der, reemplazante_padre);
 		char* reemplazante_clave = strdup(reemplazante_nodo->clave);
@@ -252,15 +215,57 @@ void *abb_borrar(abb_t *arbol, const char *clave){
 			a_borrar->der = NULL;
 		else
 			reemplazante_padre->padre->izq = NULL;
-		free(a_borrar->clave);
 		a_borrar->clave = reemplazante_clave;
 		a_borrar->dato = reemplazante_dato;
 		free(reemplazante_padre);
 	}
-	arbol->cantidad--;
+	else{
+
+		//Segundo caso: a_borrar es una hoja (nodo sin hijos)
+		if(!a_borrar->izq && !a_borrar->der){
+			free(a_borrar);
+
+			//Caso raíz
+
+			if(!a_borrar_padre->padre)
+				arbol->raiz = NULL;
+
+			//Caso general
+
+			else if(a_borrar_padre->izq)
+				a_borrar_padre->padre->izq = NULL;
+			else
+				a_borrar_padre->padre->der = NULL;
+		}
+		//Tercer caso: a_borrar es un nodo interno con un hijo.
+		else{
+
+			nodo_t* hijo = (!a_borrar->izq && a_borrar->der) ? a_borrar->der : a_borrar->izq;
+
+			//Caso raíz
+
+			if(!a_borrar_padre->padre)
+				arbol->raiz = hijo;
+
+			//Caso general
+			else{
+				if(a_borrar_padre->izq)
+					a_borrar_padre->padre->izq = hijo;
+				else
+					a_borrar_padre->padre->der = hijo;
+			}
+			free(a_borrar);
+		
+		}
+		arbol->cantidad--;
+	}
+
 	free(a_borrar_padre);
 	return a_devolver;
 }
+
+
+
 
 void *abb_obtener(const abb_t *abb, const char *clave){
 
