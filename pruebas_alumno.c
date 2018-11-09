@@ -42,7 +42,7 @@ static void pruebas_abb_insertar(){
     print_test("Prueba abb insertar clave1", abb_guardar(abb, clave1, valor1));
     print_test("Prueba abb la cantidad de elementos es 1", abb_cantidad(abb) == 1);
     print_test("Prueba abb obtener clave1 es valor1", abb_obtener(abb, clave1) == valor1);
-    print_test("Prueba abb pertenece clave1, es true", abb_pertenece(abb, clave1));
+    print_test("Prueba abb pertenece clave1 (raíz sin hijos), es true", abb_pertenece(abb, clave1));
    	print_test("Prueba abb borrar clave1, es valor1", abb_borrar(abb, clave1) == valor1);
    	print_test("Prueba abb la cantidad de elementos es 0", abb_cantidad(abb) == 0);
 
@@ -56,6 +56,12 @@ static void pruebas_abb_insertar(){
   	print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
     print_test("Prueba abb obtener clave3 es valor3", abb_obtener(abb, clave3) == valor3);
     print_test("Prueba abb pertenece clave3, es true", abb_pertenece(abb, clave3));
+    print_test("Prueba abb borrar clave2 (raíz con un hijo), es true", abb_borrar(abb, clave2) == valor2);
+    print_test("Cantidad de elementos es 1", abb_cantidad(abb) == 1);
+    print_test("Volver a insertar clave2", abb_guardar(abb, clave2, valor2));
+    print_test("Volver a insertar clave1", abb_guardar(abb, clave1, valor1));
+    print_test("Borrar clave3 (raíz con dos hijos)", abb_borrar(abb, clave3) == valor3); 
+
 
     abb_destruir(abb);
 }
