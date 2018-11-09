@@ -49,23 +49,23 @@ typedef struct{
 
 	bool izq;
 	nodo_t* padre;
-}hijo_t;
+}padre_t;
 /* ******************************************************************
  *                   FUNCIONES AUXILIARES
  * *****************************************************************/
-hijo_t* hijo_crear(void){
-	hijo_t* hijo = malloc(sizeof(hijo_t));
-	if(!hijo)
+padre_t* padre_crear(void){
+	padre_t* padre = malloc(sizeof(padre_t));
+	if(!padre)
 		return NULL;
-	hijo->padre = NULL;
-	hijo->izq = false;
-	return hijo;
+	padre->padre = NULL;
+	padre->izq = true;
+	return padre;
 }
 
 //Recorre el árbol buscando un nodo con la clave pasada por parámetro.
 //Además, se pasa un doble puntero para obtener al padre del nodo con la clave.
 //Si no se encuentra al nodo, devuelve NULL.
- nodo_t* abb_recorrer(nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp, hijo_t* extra){
+ nodo_t* abb_recorrer(nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp, padre_t* extra){
  	if(!nodo)
  		return NULL;
 
@@ -91,6 +91,15 @@ hijo_t* hijo_crear(void){
 
  }
 
+nodo_t* traza_izquierda(nodo_t* nodo, padre_t* extra){
+
+	if(!nodo)
+		return NULL;
+
+	extra->padre = nodo;
+	traza_izquierda(nodo->izq, extra);
+	return nodo;
+}
 
 /* ******************************************************************
  *                   	WRAPPERS
@@ -129,7 +138,7 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 
 bool abb_guardar(abb_t *abb, const char *clave, void *dato){
 
-	hijo_t* extra = hijo_crear();
+	padre_t* extra = padre_crear();
 	if(!extra)
 		return false;
 
@@ -158,46 +167,75 @@ bool abb_guardar(abb_t *abb, const char *clave, void *dato){
 
 void *abb_borrar(abb_t *arbol, const char *clave){
 
-	if(!arbol)	
+	padre_t* a_borrar_padre = padre_crear();
+	if(!a_borrar_padre)
 		return NULL;
 
-	hijo_t* extra = hijo_crear();
-	if(!extra)
-		return NULL;
-
-	nodo_t* a_borrar = abb_recorrer(arbol->raiz, clave, arbol->comparar_clave, extra);
+	nodo_t* a_borrar = abb_recorrer(arbol->raiz, clave, arbol->comparar_clave, a_borrar_padre);
 	if(!a_borrar){
-		free(extra);
+		free(a_borrar_padre);
 		return NULL;
 	}
 	
 	void* a_devolver = a_borrar->dato;
+	free(a_borrar->clave);
 
-//Primer caso: es una hoja (nodo sin hijos)
+//Primer caso: a_borrar es una hoja (nodo sin hijos)
 	if(!a_borrar->izq && !a_borrar->der){
-		free(a_borrar->clave);
+
 		free(a_borrar);
-		if(!extra->padre)
+
+		//Caso raíz
+
+		if(!a_borrar_padre->padre)
 			arbol->raiz = NULL;
-		else if(extra->izq)
-			extra->padre->izq = NULL;
+
+		//Caso general
+
+		else if(a_borrar_padre->izq)
+			a_borrar_padre->padre->izq = NULL;
 		else
-			extra->padre->der = NULL;
+			a_borrar_padre->padre->der = NULL;
 	}
-//Segundo caso: es un nodo interno con un hijo.
+
+//Segundo caso: a_borrar es un nodo interno con un hijo.
 	else if((!a_borrar->izq && a_borrar->der )|| (a_borrar->izq && !a_borrar->der)){
+
 		nodo_t* hijo = (!a_borrar->izq && a_borrar->der) ? a_borrar->der : a_borrar->izq;
-		if(extra->izq)
-			extra->padre->izq = hijo;
-		else
-			extra->padre->der = hijo;
-		free(a_borrar->clave);
+
+		//Caso raíz
+
+		if(!a_borrar_padre->padre)
+			arbol->raiz = hijo;
+
+		//Caso general
+		else{
+			if(a_borrar_padre->izq)
+				a_borrar_padre->padre->izq = hijo;
+			else
+				a_borrar_padre->padre->der = hijo;
+		}
 		free(a_borrar);
 	}
 
-	if(a_devolver)
-		arbol->cantidad--;
-	free(extra);
+//Tercer caso: a_borrar es un nodo interno con dos hijos.
+	else{
+
+		padre_t* reemplazante_padre = padre_crear();
+		nodo_t* reemplazante_nodo = traza_izquierda(a_borrar->der, reemplazante_padre);
+		char* reemplazante_clave = strdup(reemplazante_nodo->clave);
+		void* reemplazante_dato = abb_borrar(arbol, reemplazante_nodo->clave);
+		if(!reemplazante_padre->padre)
+			a_borrar->der = NULL;
+		else
+			reemplazante_padre->padre->izq = NULL;
+		free(a_borrar->clave);
+		a_borrar->clave = reemplazante_clave;
+		a_borrar->dato = reemplazante_dato;
+		free(reemplazante_padre);
+	}
+	arbol->cantidad--;
+	free(a_borrar_padre);
 	return a_devolver;
 }
 
