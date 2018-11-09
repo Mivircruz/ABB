@@ -60,6 +60,28 @@ static void pruebas_abb_insertar(){
     abb_destruir(abb);
 }
 
+bool insertar_preposiciones(abb_t* abb){
+
+	char* preposiciones_desordenadas[] = {"segun","en","so","con","por","bajo","cabe","entre","sin","a","hacia","contra","versus","ante","para","via","tras","durante","hasta","desde","sobre","mediante","de"};
+	bool ok = false;
+	size_t cant_proposiciones = 23;
+	for (size_t i = 0; i < cant_proposiciones; i++){
+		ok = abb_guardar(abb,preposiciones_desordenadas[i],preposiciones_desordenadas[i]);
+	}
+	return ok;
+}
+
+void pruebas_abb_varios_elementos_recorridos(){
+
+	abb_t* abb = abb_crear(strcmp,NULL);
+
+	bool ok = false;
+	ok = insertar_preposiciones(abb);
+	print_test("colocado varios elementos", ok);
+	print_test("la cantidad de pronombres colocados es 23", (abb_cantidad(abb) == 23));
+	//verificar de alguna forma que estan ordenados
+	abb_destruir(abb);
+}
 
 /*-----------------------------------
           Funcion Principal
@@ -67,4 +89,5 @@ static void pruebas_abb_insertar(){
 void pruebas_abb_alumno(){
 	pruebas_abb_vacio();
 	pruebas_abb_insertar();
+	pruebas_abb_varios_elementos_recorridos();
 }
