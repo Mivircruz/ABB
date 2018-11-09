@@ -129,11 +129,11 @@ void pruebas_abb_varios_elementos(){
 
 void pruebas_abb_iter_simples(){
 	printf("\nPruebas de iterador con abb vacio\n");
-	abb_t* abb = abb_crear(NULL,NULL);
+	abb_t* abb = abb_crear(strcmp,NULL);
 
 	abb_iter_t* iter = abb_iter_in_crear(abb);
-	print_test("Iterador NO creado porque el abb no tiene raiz", !iter);
-	//abb_iter_in_destruir(iter);
+	print_test("Iterador está al final", abb_iter_in_al_final(iter));
+	abb_iter_in_destruir(iter);
 
 	char *clave1 = "perro", *valor1 = "guau";
 	//char *clave2 = "gato", *valor2 = "miau";
@@ -143,14 +143,14 @@ void pruebas_abb_iter_simples(){
 
 	abb_guardar(abb, clave1, valor1);
 	iter = abb_iter_in_crear(abb);
-	print_test("El iterador creado no esta en NULL", iter);
-	print_test("El valor actual al que apunta es el guardado", (abb_iter_in_ver_actual(iter) == clave1) );
-	print_test("El iterador NO esta al final", (abb_iter_in_al_final(iter) == false));
+	print_test("El valor actual al que apunta es el guardado", !strcmp(abb_iter_in_ver_actual(iter),clave1) );
+	print_test("El iterador esta al final es false", (abb_iter_in_al_final(iter) == false));
 	print_test("El iterador puede avanzar", (abb_iter_in_avanzar(iter) == true));
 	print_test("El iterador esta al final", (abb_iter_in_al_final(iter) == true));
-	print_test("El iterador NO puede avanzar", (abb_iter_in_avanzar(iter) == false));
+	print_test("El iterador no puede avanzar", (abb_iter_in_avanzar(iter) == false));
 
 	abb_iter_in_destruir(iter);
+	abb_destruir(abb);
 }
 
 /*-----------------------------------
