@@ -29,7 +29,7 @@ struct abb{
 
 struct abb_iter{
 
-	pila* pila;
+	pila_t* pila;
 };
 
 /* ******************************************************************
@@ -134,6 +134,14 @@ void abb_iterar(nodo_t* nodo, bool visitar(const char*, void*, void*), void* ext
 	abb_iterar(nodo->der, visitar, extra, seguir_iterando);
 }
 
+void apilar_hijos_izquierdos(pila_t* pila, nodo_t* nodo){
+
+	nodo_t* actual = nodo;
+	while(actual){
+		pila_apilar(pila, actual);
+		actual = actual->izq;
+	}
+}
 
 /* ******************************************************************
  *                    PRIMITIVAS DEL ABB
@@ -301,7 +309,7 @@ abb_iter_t *abb_iter_in_crear(const abb_t* arbol){
 		return NULL;
 
 	iter->pila = pila_crear();
-	pila_apilar(iter->pila, arbol->raiz);
+	apilar_hijos_izquierdos(iter->pila, arbol->raiz);
 	return iter;
 }
 
@@ -313,8 +321,7 @@ bool abb_iter_in_avanzar(abb_iter_t *iter){
 	nodo_t* padre = pila_desapilar(iter->pila);
 	if(padre->der)
 		pila_apilar(iter->pila, padre->der);
-	if(padre->izq)
-		pila_apilar(iter->pila, padre->izq);
+	apilar_hijos_izquierdos(iter->pila, padre);
 	return true;
 }
 
@@ -330,10 +337,10 @@ const char* abb_iter_in_ver_actual(const abb_iter_t* iter){
 
 bool abb_iter_in_al_final(const abb_iter_t* iter){
 
-	return pila_esta_vacia(ier->pila);
+	return pila_esta_vacia(iter->pila);
 }
 
 void abb_iter_in_destruir(abb_iter_t* iter){
-	free(pila->iter);
+	free(iter->pila);
 	free(iter);
 }
