@@ -302,14 +302,13 @@ void abb_in_order(abb_t* arbol, bool visitar(const char*, void*, void*), void* e
 
 abb_iter_t *abb_iter_in_crear(const abb_t* arbol){
 
-	if(!arbol->raiz)
-		return NULL;
 	abb_iter_t* iter = malloc(sizeof(abb_iter_t));
 	if(!iter)
 		return NULL;
 
 	iter->pila = pila_crear();
-	apilar_hijos_izquierdos(iter->pila, arbol->raiz);
+	if(arbol->raiz)
+		apilar_hijos_izquierdos(iter->pila, arbol->raiz);
 	return iter;
 }
 
@@ -320,8 +319,8 @@ bool abb_iter_in_avanzar(abb_iter_t *iter){
 
 	nodo_t* padre = pila_desapilar(iter->pila);
 	if(padre->der)
-		pila_apilar(iter->pila, padre->der);
-	apilar_hijos_izquierdos(iter->pila, padre);
+		apilar_hijos_izquierdos(iter->pila, padre->der);
+
 	return true;
 }
 
@@ -341,6 +340,6 @@ bool abb_iter_in_al_final(const abb_iter_t* iter){
 }
 
 void abb_iter_in_destruir(abb_iter_t* iter){
-	free(iter->pila);
+	pila_destruir(iter->pila);
 	free(iter);
 }
