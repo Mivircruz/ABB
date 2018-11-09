@@ -76,12 +76,21 @@ void abb_in_order(abb_t* arbol, bool visitar(const char*, void*, void*), void* e
 //Post: el iterador fue creado.
 abb_iter_t *abb_iter_in_crear(const abb_t* arbol);
 
+//Avanza siguiendo un recorrido in order. Devuelve true si pudo avanzar, false en caso contrario.
+//Pre: el iterador fue creado.
 bool abb_iter_in_avanzar(abb_iter_t *iter);
 
+//Muestra la clave del nodo al que está apuntado.
+//Pre: el iterador fue creado.
 const char* abb_iter_in_ver_actual(const abb_iter_t* iter);
 
+//Devuelve true si el iterador se encuentra al final, false en caso contrario.
+//Pre: el iterador fue creado.
 bool abb_iter_in_al_final(const abb_iter_t* iter);
 
+//Destruye el iterador.
+//Pre: el iterador fue creado.
+//Pos: se liberó la memoria pedida para el iterador.
 void abb_iter_in_destruir(abb_iter_t* iter);
 
 
