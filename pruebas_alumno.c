@@ -179,8 +179,8 @@ static void prueba_abb_borrar(){
     print_test("Prueba abb la cantidad de elementos es 0", abb_cantidad(abb) == 0);
 
     /*Inserta los valores en desorden*/
-    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave2, valor2));
-    print_test("Prueba abb insertar clave2", abb_guardar(abb, clave1, valor1));
+    print_test("Prueba abb insertar clave2", abb_guardar(abb, clave2, valor2));
+    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave1, valor1));
     print_test("Prueba abb insertar clave3", abb_guardar(abb, clave9, valor9));
     print_test("Prueba abb insertar clave4", abb_guardar(abb, clave5, valor5));
     print_test("Prueba abb insertar clave5", abb_guardar(abb, clave7, valor7));
@@ -197,6 +197,118 @@ static void prueba_abb_borrar(){
     print_test("Prueba borrar clave9, es verdadero", abb_borrar(abb,clave9) == valor9);
     print_test("Prueba borrar clave4, es verdadero", abb_borrar(abb,clave4) == valor4);
     print_test("Prueba borrar clave3, es verdadero", abb_borrar(abb,clave3) == valor3);
+
+    abb_destruir(abb);
+}
+
+void pruebas_iter_corte_izquierdo(){
+
+	printf("\nINICIO PRUEBAS ITERAR CORTE IZQUIERDO\n");
+
+    abb_t* abb = abb_crear(strcmp,NULL);
+
+    char *clave1 = "a", 		*valor1 = "guau";
+    char *clave2 = "ab",		*valor2 = "miau";
+    char *clave3 = "abc", 		*valor3 = "mu";
+    char *clave4 = "abcd", 		*valor4 = "pio";
+    char *clave5 = "abcde",		*valor5 = "me";
+    char *clave6 = "abcdef", 	*valor6 = "mamadera";
+    char *clave7 = "abcdefg", 	*valor7 = "mesa";
+    char *clave8 = "abcdefgh", 	*valor8 = "fideos";
+    char *clave9 = "abcdefghi", *valor9 = "milanesa";
+
+/*Inserta elementos de tal manera que no haya ninguno a la izquierda*/
+
+    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave1, valor1));
+    print_test("Prueba abb insertar clave2", abb_guardar(abb, clave2, valor2));
+    print_test("Prueba abb insertar clave3", abb_guardar(abb, clave3, valor3));
+    print_test("Prueba abb insertar clave4", abb_guardar(abb, clave4, valor4));
+    print_test("Prueba abb insertar clave5", abb_guardar(abb, clave5, valor5));
+    print_test("Prueba abb insertar clave6", abb_guardar(abb, clave6, valor6));
+    print_test("Prueba abb insertar clave7", abb_guardar(abb, clave7, valor7));
+    print_test("Prueba abb insertar clave8", abb_guardar(abb, clave8, valor8));
+    print_test("Prueba abb insertar clave9", abb_guardar(abb, clave9, valor9));
+
+    abb_iter_t* iter = abb_iter_in_crear(abb);
+
+    print_test("Iterador esta al final es false", !abb_iter_in_al_final(iter));
+    print_test("Actual es clave1", !strcmp(abb_iter_in_ver_actual(iter), clave1));
+    print_test("Avanzar es true", abb_iter_in_avanzar(iter));
+    print_test("Iterador esta al final es false", !abb_iter_in_al_final(iter));
+    print_test("Actual es clave2", !strcmp(abb_iter_in_ver_actual(iter), clave2));
+    print_test("Avanzar es true", abb_iter_in_avanzar(iter));
+    print_test("Iterador esta al final es false", !abb_iter_in_al_final(iter));
+    print_test("Actual es clave3", !strcmp(abb_iter_in_ver_actual(iter), clave3));
+    print_test("Avanzar es true", abb_iter_in_avanzar(iter));
+    print_test("Iterador esta al final es false", !abb_iter_in_al_final(iter));
+    print_test("Actual es clave4", !strcmp(abb_iter_in_ver_actual(iter), clave4));
+    print_test("Avanzar es true", abb_iter_in_avanzar(iter));
+
+    abb_iter_in_destruir(iter);
+    abb_destruir(abb);
+
+    abb = abb_crear(strcmp, NULL);
+
+    print_test("Prueba abb insertar clave9", abb_guardar(abb, clave9, valor9));
+    print_test("Prueba abb insertar clave8", abb_guardar(abb, clave8, valor8));
+    print_test("Prueba abb insertar clave7", abb_guardar(abb, clave7, valor7));
+    print_test("Prueba abb insertar clave6", abb_guardar(abb, clave6, valor6));
+    print_test("Prueba abb insertar clave5", abb_guardar(abb, clave5, valor5));
+    print_test("Prueba abb insertar clave4", abb_guardar(abb, clave4, valor4));
+    print_test("Prueba abb insertar clave3", abb_guardar(abb, clave3, valor3));
+    print_test("Prueba abb insertar clave8", abb_guardar(abb, clave2, valor2));
+    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave1, valor1));
+
+    iter = abb_iter_in_crear(abb);
+
+    print_test("Iterador esta al final es false", !abb_iter_in_al_final(iter));
+    print_test("Actual es clave1", !strcmp(abb_iter_in_ver_actual(iter), clave1));
+    print_test("Avanzar es true", abb_iter_in_avanzar(iter));
+    print_test("Iterador esta al final es false", !abb_iter_in_al_final(iter));
+    print_test("Actual es clave2", !strcmp(abb_iter_in_ver_actual(iter), clave2));
+    print_test("Avanzar es true", abb_iter_in_avanzar(iter));
+    print_test("Iterador esta al final es false", !abb_iter_in_al_final(iter));
+    print_test("Actual es clave3", !strcmp(abb_iter_in_ver_actual(iter), clave3));
+    print_test("Avanzar es true", abb_iter_in_avanzar(iter));
+    print_test("Iterador esta al final es false", !abb_iter_in_al_final(iter));
+    print_test("Actual es clave4", !strcmp(abb_iter_in_ver_actual(iter), clave4));
+    print_test("Avanzar es true", abb_iter_in_avanzar(iter));
+}
+
+static void prueba_iter_interno(){
+
+	printf("\nINICIO PRUEBAS ITERAR CORTE IZQUIERDO\n");
+
+    abb_t* abb = abb_crear(strcmp,NULL);
+
+    char *clave1 = "a";
+    int valor1 = 1;
+    char *clave2 = "ab";
+    int valor2 = 2;
+    char *clave3 = "abc";
+    int valor3 = 3;
+    char *clave4 = "abcd"; 		
+    int valor4 = 4;
+    char *clave5 = "abcde";
+   	int valor5 = 5;
+
+    /*Inserta elementos */
+
+    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave4, &valor4));
+    print_test("Prueba abb insertar clave2", abb_guardar(abb, clave2, &valor2));
+    print_test("Prueba abb insertar clave3", abb_guardar(abb, clave1, &valor1));
+    print_test("Prueba abb insertar clave4", abb_guardar(abb, clave3, &valor3));
+    print_test("Prueba abb insertar clave5", abb_guardar(abb, clave5, &valor5));
+
+    bool visitar(const char* clave, void* dato, void* extra){
+    	if(*(int*)dato == 3)
+    		return false;
+
+    	printf("%s %i\n", clave, *(int*)dato);
+    	return true;
+    }
+
+    abb_in_order(abb, visitar, NULL);
 
     abb_destruir(abb);
 }
@@ -239,9 +351,10 @@ static void prueba_abb_valor_null(){
 }
 
 
+
 static void prueba_abb_volumen(size_t largo, bool debug){
 
-	printf("\nINICIO PRUEBAS ABB VOLUMEN\n");
+    printf("\nINICIO PRUEBAS ABB VOLUMEN\n");
 
     abb_t* abb = abb_crear(strcmp,NULL);
 
@@ -275,7 +388,7 @@ static void prueba_abb_volumen(size_t largo, bool debug){
     if (debug) print_test("Prueba abb la cantidad de elementos es correcta", abb_cantidad(abb) == largo);
 
     /* Verifica que borre y devuelva los valores correctos */
-    for (size_t i = 0; i < largo; i++) {
+   for (size_t i = 0; i < largo; i++) {
         ok = abb_borrar(abb, claves[i]) == valores[i];
         if (!ok) break;
     }
@@ -284,7 +397,7 @@ static void prueba_abb_volumen(size_t largo, bool debug){
     if (debug) print_test("Prueba abb la cantidad de elementos es 0", abb_cantidad(abb) == 0);
 
     /* Destruye el abb y crea uno nuevo que sí libera */
-    abb_destruir(abb);
+   abb_destruir(abb);
     abb = abb_crear(strcmp,free);
 
     /* Inserta 'largo' parejas en el abb */
@@ -300,6 +413,7 @@ static void prueba_abb_volumen(size_t largo, bool debug){
     abb_destruir(abb);
 
 }
+
 
 bool insertar_preposiciones(abb_t* abb){
 
@@ -402,4 +516,6 @@ void pruebas_abb_alumno(){
 	prueba_abb_volumen(5000, true);
 	pruebas_abb_varios_elementos();
 	pruebas_abb_iter_simples();
+	pruebas_iter_corte_izquierdo();
+	prueba_iter_interno();
 }
