@@ -124,15 +124,6 @@ void _abb_destruir(nodo_t* nodo, abb_destruir_dato_t destruir_dato){
 	return;
 }
 
-void abb_iterar(nodo_t* nodo, bool visitar(const char*, void*, void*), void* extra, bool continuar){
-	if(!nodo || !continuar)
-		return;
-
-	abb_iterar(nodo->izq, visitar, extra, true);
-	bool seguir_iterando = visitar(nodo->clave, nodo->dato, extra);
-	abb_iterar(nodo->der, visitar, extra, seguir_iterando);
-}
-
 void apilar_hijos_izquierdos(pila_t* pila, nodo_t* nodo){
 
 	nodo_t* actual = nodo;
@@ -141,6 +132,18 @@ void apilar_hijos_izquierdos(pila_t* pila, nodo_t* nodo){
 		actual = actual->izq;
 	}
 }
+
+void abb_iterar(nodo_t* nodo, bool visitar(const char*, void*, void*), void* extra, bool* continuar){
+	if(!nodo || !continuar)
+		return;
+
+	abb_iterar(nodo->izq, visitar, extra, continuar);
+	if(!*continuar)
+		return;
+	*continuar = visitar(nodo->clave, nodo->dato, extra);
+	abb_iterar(nodo->der, visitar, extra, continuar);
+}
+
 
 /* ******************************************************************
  *                    PRIMITIVAS DEL ABB
@@ -290,10 +293,12 @@ void abb_destruir(abb_t *arbol){
  *                    PRIMITIVA DEL ITERADOR INTERNO
  * *****************************************************************/
 
+
 void abb_in_order(abb_t* arbol, bool visitar(const char*, void*, void*), void* extra){
 	if(!arbol->raiz)
 		return;
-	abb_iterar(arbol->raiz, visitar, extra, true);
+	bool continuar = true;
+	abb_iterar(arbol->raiz, visitar, extra, &continuar);
 }
 
 /* *****************************************************************
