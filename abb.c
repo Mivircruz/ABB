@@ -99,11 +99,11 @@ padre_t* padre_crear(void){
 
 nodo_t* traza_izquierda(nodo_t* nodo){
 
-	nodo_t* actual = nodo;
-	while(actual->izq)
-		actual = actual->izq;
+	nodo_t* minimo = nodo;
+	while(minimo->izq)
+		minimo = minimo->izq;
 	
-	return actual;
+	return minimo;
 }
 
 /* ******************************************************************
@@ -133,15 +133,17 @@ void apilar_hijos_izquierdos(pila_t* pila, nodo_t* nodo){
 	}
 }
 
-void abb_iterar(nodo_t* nodo, bool visitar(const char*, void*, void*), void* extra, bool* continuar){
-	if(!nodo || !continuar)
-		return;
+bool abb_iterar(nodo_t* nodo, bool visitar(const char*, void*, void*), void* extra){
 
-	abb_iterar(nodo->izq, visitar, extra, continuar);
-	if(!*continuar)
-		return;
-	*continuar = visitar(nodo->clave, nodo->dato, extra);
-	abb_iterar(nodo->der, visitar, extra, continuar);
+	if(!nodo)
+		return true;
+
+	if(!abb_iterar(nodo->izq, visitar, extra))
+		return false;
+
+	if(!visitar(nodo->clave, nodo->dato, extra))
+		return false;
+	return abb_iterar(nodo->der, visitar, extra);
 }
 
 
@@ -297,8 +299,7 @@ void abb_destruir(abb_t *arbol){
 void abb_in_order(abb_t* arbol, bool visitar(const char*, void*, void*), void* extra){
 	if(!arbol->raiz)
 		return;
-	bool continuar = true;
-	abb_iterar(arbol->raiz, visitar, extra, &continuar);
+	abb_iterar(arbol->raiz, visitar, extra);
 }
 
 /* *****************************************************************
