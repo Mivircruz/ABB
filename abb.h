@@ -1,6 +1,9 @@
 #ifndef ABB_H
 #define ABB_H
 
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
 /* *****************************************************************
  *                DEFINICION DE LOS TIPOS DE DATOS
